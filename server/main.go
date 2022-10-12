@@ -18,21 +18,22 @@ func main() {
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000",
-		AllowHeaders: "Origin, Content-Type, Accept",
+		AllowHeaders:     "Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
+		AllowOrigins:     "*",
+		AllowCredentials: true,
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
 
 	todos := []Todo{}
 
 	app.Get("/healthcheck", func(c *fiber.Ctx) error {
-		return c.SendString(("OK"))
+		return c.SendString("OK")
 	})
 
 	app.Post("/api/todos", func(c *fiber.Ctx) error {
 		todo := &Todo{}
-		err := c.BodyParser((todo))
 
-		if err != nil {
+		if err := c.BodyParser(todo); err != nil {
 			return err
 		}
 
@@ -41,6 +42,7 @@ func main() {
 		todos = append(todos, *todo)
 
 		return c.JSON(todos)
+
 	})
 
 	app.Patch("/api/todos/:id/done", func(c *fiber.Ctx) error {
@@ -65,4 +67,5 @@ func main() {
 	})
 
 	log.Fatal(app.Listen(":4000"))
+
 }
